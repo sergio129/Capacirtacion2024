@@ -1,0 +1,59 @@
+version '1.0-SNAPSHOT'
+repositories {
+    mavenCentral()
+
+}
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {url"https://plugins.gradle.org/m2/"}
+    }
+    dependencies {
+        classpath("net.serenity-bdd:serenity-gradle-plugin:3.4.2")
+    }
+}
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: "net.serenity-bdd.serenity-gradle-plugin"
+apply plugin: 'application'
+
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+mainClassName = ':test --tests "co.konecta.sura.certificate.runners.PrincipalRunner"'
+sourceCompatibility = 1.8
+ext {
+    slf4jVersion = '1.7.7'
+    serenityCoreVersion = '4.1.20'
+    junitVersion = '4.13.2'
+    LombokVersion = '1.18.34'
+}
+
+dependencies {
+    testImplementation "net.serenity-bdd:serenity-cucumber:${serenityCoreVersion}",
+            "net.serenity-bdd:serenity-core:${serenityCoreVersion}",
+            "org.projectlombok:lombok:${LombokVersion}",
+            "net.serenity-bdd:serenity-junit:${serenityCoreVersion}",
+            "net.serenity-bdd:serenity-screenplay:${serenityCoreVersion}",
+            "net.serenity-bdd:serenity-single-page-report:${serenityCoreVersion}",
+            "net.serenity-bdd:serenity-screenplay-webdriver:${serenityCoreVersion}",
+            "junit:junit:${junitVersion}"
+    implementation "net.serenity-bdd:serenity-ensure:${serenityCoreVersion}"
+    compileOnly "org.projectlombok:lombok:${LombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${LombokVersion}"
+    testCompileOnly "org.projectlombok:lombok:${LombokVersion}"
+    testAnnotationProcessor "org.projectlombok:lombok:${LombokVersion}"
+    testImplementation 'org.slf4j:slf4j-simple:2.0.13'
+}
+test {
+    testLogging.showStandardStreams = true
+    maxParallelForks = 3
+    systemProperties System.getProperties()
+}
+serenity {
+    reports = ["single-page-html"]
+}
+gradle.startParameter.continueOnFailure = true
+test.finalizedBy(aggregate)
